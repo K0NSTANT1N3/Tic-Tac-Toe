@@ -33,8 +33,8 @@ int main(){
         board.push_back(curRow);      
     }
 
-    cout << "this is tic-tac-toe game" << endl;
-    cout << "please fill in first, or second" << endl;
+    cout << "This is tic-tac-toe game" << endl;
+    cout << "Please fill in first, or second" << endl;
     string s;
     /*s must be "first" or "second" 
     fill in "first" to make first move, "second" to make second move */
@@ -42,11 +42,11 @@ int main(){
 
     while (s != "first" && s != "second")
     {
-        cout << "invalid text" << endl;
+        cout << "Invalid text" << endl;
         cin >> s;
     }
 
-    cout << "this is starting board";    printVec(board);
+    cout << "This is starting board";    printVec(board);
 
     if(s == "first"){
         playerMove(board, false);
@@ -123,11 +123,11 @@ void printVec(vector<vector<char> >& board){
 
 void playerMove(vector<vector<char> >& board, bool played){
     if(played){
-        cout << endl << "board after computers move is:";    
+        cout << endl << "Board after computers move is:";    
         printVec(board);
     }
 
-    cout << "make a move" << endl;
+    cout << "Make a move" << endl;
     /* to make a move you need to fill int row first and colum secondly */
     int row, col;
     cin >> row >> col;
@@ -135,7 +135,7 @@ void playerMove(vector<vector<char> >& board, bool played){
     bool isLegal = legalMove(board, row, col);
 
     while(!isLegal){
-        cout << "it is illegal move" << endl  << "repeat again" << endl;
+        cout << "It is illegal move" << endl  << "Repeat again" << endl;
         cin >> row >> col;
 
         bool isLegal = legalMove(board, row, col);
@@ -143,7 +143,7 @@ void playerMove(vector<vector<char> >& board, bool played){
     }
 
     board[row][col] = 'X';
-    cout << "board after your move is:";    printVec(board);
+    cout << "Board after your move is:";    printVec(board);
 }
 
 bool legalMove(vector<vector<char> >& board, int y, int x){
@@ -174,53 +174,56 @@ int getRandom(int except){
 }
 
 int computerMove(vector<vector<char> >& board, char c, int& goodY, int& goodX){
-    if(isTie(board))return 0;
-
+    //base cases
     int y = -1, x = -1;
     char nextC = c == 'O'? 'X': 'O';
     if(findStrike(board, y, x)){
         if(board[y][x] == nextC)return -1;
         if(board[y][x] == c)return 1;
     }
-    int ans = -1;
-    int ry, ry1, ry2, rx, rx1, rx2;
 
+    if(isTie(board))return 0;
+
+    int ans = -1;
+    
+    int ry, ry1, ry2;
     ry = getRandom(-1);
     ry1 = getRandom(ry);
     ry2 = 3 - ry1 - ry;
 
-    stack<int> itrY;  
-    itrY.push(ry); itrY.push(ry1); itrY.push(ry2);
+    set<int> itrY;  
+    itrY.insert(ry); itrY.insert(ry1); itrY.insert(ry2);
 
-    while(!itrY.empty()){
-        int tmpY = itrY.top();   itrY.pop();
-
+    for(set<int>::iterator i = itrY.begin(); i != itrY.end(); i++){
+        
+        int rx, rx1, rx2;
         rx = getRandom(-1);
         rx1 = getRandom(rx);
         rx2 = 3 - rx1 - rx;
-
-        stack<int> itrX;  
-        itrX.push(rx); itrX.push(rx1); itrX.push(rx2);
         
-        while(!itrX.empty()){
-            int tmpX = itrX.top();     itrX.pop();
-            if( legalMove (board, tmpY, tmpX) ){
-                board[tmpY][tmpX] = c;
+        set<int> itrX;  
+        itrX.insert(rx); itrX.insert(rx1); itrX.insert(rx2);
+        
+        for(set<int>::iterator j = itrX.begin(); j != itrX.end(); j++){
+
+            if( legalMove (board, *i, *j) ){
+                board[*i][*j] = c;
                 y = x = -1;
                 int preAns = computerMove(board, nextC, y, x);
-
-                if(preAns == 0){
-                    goodY = tmpY;
-                    goodX = tmpX;
-                    ans = 0;
-                } 
-                else if(preAns == -1){
-                    goodY = tmpY;
-                    goodX = tmpX;
-                    board[tmpY][tmpX] = '.';
+                 
+                if(preAns == -1){
+                    goodY = *i;
+                    goodX = *j;
+                    board[*i][*j] = '.';
                     return 1;
-                } 
-                board[tmpY][tmpX] = '.';   
+                }   
+                else if(preAns == 0){
+                    goodY = *i;
+                    goodX = *j;
+                    ans = 0;
+                    board[*i][*j] = '.';
+                }  
+                board[*i][*j] = '.';
             }
         }
     }
@@ -289,7 +292,6 @@ void lose(vector<vector<char> >& board){
     cout <<  "Good Game <3, but..." << endl <<"YOU LOSE" << endl;
     exit(0);
 }
-
 void game(vector<vector<char> >& board){
     int goodY = -1, goodX = -1;
     while(!isTie(board)){
@@ -311,5 +313,3 @@ void game(vector<vector<char> >& board){
         }
     }
 }
-
-
